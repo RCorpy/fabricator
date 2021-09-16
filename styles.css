@@ -1,0 +1,82 @@
+
+.toolbar{
+    margin-top: 5vh;
+    display: flex;
+    justify-content: space-around;
+}
+
+.info{
+    margin-top: 3vh;
+}
+
+.articulorow{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.articulo{
+    width: 70vw;
+    display: flex;
+    justify-content: space-between;
+}
+
+.printdiv{
+    width: 20vw;
+}
+
+.articulo > input{
+    width: 15%;
+}
+
+.articulo > span {
+    width: 70%;
+    margin-left: 1vw;
+}
+
+.verde{
+    background-color: green;
+}
+/*print area css*/
+
+.printtop{
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 1cm;
+    margin-bottom: 1cm;
+}
+
+.printbody{
+    display: table;
+    width: 100%;
+    text-align: center;
+}
+
+.printrow{
+    display: table-row;
+    width: 100%;
+    
+}
+.printrow > span{
+    display: table-cell;
+    padding: 0.2cm;
+    
+}
+
+.printrow > span {
+    display: table-cell;
+}
+
+.printnumero{
+    width: 15%;
+}
+
+.printtexto{
+    width: 55%;
+}
+
+@media print{
+    .print{
+        width: 210mm;
+    }
+}
