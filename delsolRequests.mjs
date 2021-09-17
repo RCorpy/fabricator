@@ -58,3 +58,51 @@ async function getAuth(url = 'https://api.sdelsol.com/login/Autenticar', data = 
     });
     return response.json(); 
   }
+
+  async function crearHojaDeFabricacion(data, url = "https://api.sdelsol.com/admin/EscribirRegistro") {
+    // Opciones por defecto estan marcadas con un *
+    const response = await fetch(url, {
+      method: 'POST', 
+      mode: 'cors', 
+      cache: 'no-cache', 
+      credentials: 'same-origin',
+      headers: authHeader(),
+      redirect: 'follow', 
+      referrerPolicy: 'no-referrer', 
+      body: JSON.stringify(data) 
+    });
+    return response.json(); 
+  }
+
+  async function crearDatosHojaDeFabricacion(data, url ="https://api.sdelsol.com/admin/EscribirRegistro"){
+    const response = await fetch(url, {
+    method: 'POST', 
+    mode: 'cors', 
+    cache: 'no-cache', 
+    credentials: 'same-origin',
+    headers: authHeader(),
+    redirect: 'follow', 
+    referrerPolicy: 'no-referrer', 
+    body: JSON.stringify(data) 
+  });
+  return response.json(); 
+}
+
+
+  async function getCogidoHojaDeFabricacion(url= "https://api.sdelsol.com/admin/LanzarConsulta", data = {
+    ejercicio: "2021",
+    consulta: "SELECT * FROM F_FCO"
+  }){
+    const response = await fetch(url, {
+      method: 'POST', 
+      mode: 'cors', 
+      cache: 'no-cache', 
+      credentials: 'same-origin',
+      headers: authHeader(),
+      redirect: 'follow', 
+      referrerPolicy: 'no-referrer', 
+      body: JSON.stringify(data) 
+    });
+    return response.json(); 
+  }
+

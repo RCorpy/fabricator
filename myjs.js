@@ -1,15 +1,19 @@
 //imported connectionInfo from index.html
 //imported ...
 
-const buscarField = document.getElementById("buscarField")
-const basicInfoElement = document.getElementsByClassName("showBasicInfo")[0]
-const infoElement = document.getElementsByClassName("info")[0]
-const printTop = document.getElementsByClassName("printtop")[0]
-const printElement = document.getElementsByClassName("printbody")[0]
+let buscarField = document.getElementById("buscarField")
+let basicInfoElement = document.getElementsByClassName("showBasicInfo")[0]
+let infoElement = document.getElementsByClassName("info")[0]
+let printTop = document.getElementsByClassName("printtop")[0]
+let printElement = document.getElementsByClassName("printbody")[0]
 
 let searchValue=""
 let presupuesto
 let articulos
+let subArticulos
+let selectedNombre
+let selectedCodigo
+let selectedCantidad
 
 const unnecesaryWordsInArticulos = ["CUBO", "BALANZA", "RODILLO", "MANO", "ENVASE"]
 
@@ -152,12 +156,13 @@ const desglosar = async (i, cantidad) =>{
 }
 
 const seleccionarArticulo = async (i, cantidad) =>{
-    const nombre = articulos[i][0]
-    const codigo = articulos[i][2]
-
-    let subArticulos = await buscarDesglose(codigo)
+    
+    selectedNombre = articulos[i][0]
+    selectedCodigo = articulos[i][2]
+    selectedCantidad = cantidad
+    
+    subArticulos = await buscarDesglose(selectedCodigo)
     subArticulos = subArticulos.resultado
-
 
     subArticulos = subArticulos.map(element=>([element[2].dato, element[4].dato * cantidad, element[1].dato]))
     subArticulos = filtrarArticulos(subArticulos, ["MANO"])
@@ -166,7 +171,7 @@ const seleccionarArticulo = async (i, cantidad) =>{
 
     //titulo
 
-    printTop.innerHTML = `<span>${nombre} * ${cantidad}</span><span>Pedido: ${buscarField.value}</span>`
+    printTop.innerHTML = `<span>${selectedNombre} * ${cantidad}</span><span>Pedido: ${buscarField.value}</span>`
 
     //articulos
 
@@ -179,6 +184,9 @@ const seleccionarArticulo = async (i, cantidad) =>{
 }
 
 const imprimir = () => {
+
+    crearFabricacion()
+
     var headstr = "<html><head><title>Booking Details</title></head><body>";
     var footstr = "</body>";
     var newstr = "<div class='print'> <div class='printtop'>" + printTop.innerHTML +"</div><div class='printbody'>"+ printElement.innerHTML+ "</div></div>";
@@ -186,5 +194,89 @@ const imprimir = () => {
     document.body.innerHTML = headstr+newstr+footstr;
     window.print();
     document.body.innerHTML = oldstr;
+
+    buscarField = document.getElementById("buscarField")
+    basicInfoElement = document.getElementsByClassName("showBasicInfo")[0]
+    infoElement = document.getElementsByClassName("info")[0]
+    printTop = document.getElementsByClassName("printtop")[0]
+    printElement = document.getElementsByClassName("printbody")[0]
     return false;
+}
+
+const crearFabricacion = async ()=>{
+    //conseguir el siguiente numero de codigo
+    let codigoHojaDeFabricacion = await getCogidoHojaDeFabricacion()
+    codigoHojaDeFabricacion = codigoHojaDeFabricacion.resultado[codigoHojaDeFabricacion.resultado.length-1][0].dato +1
+    //conseguir fecha formateada
+    let today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth()+1; 
+    let yyyy = today.getFullYear();
+    if(dd<10) {
+        dd='0'+dd;
+    } 
+    if(mm<10) {
+        mm='0'+mm;
+    } 
+    today = yyyy+'-'+mm+'-'+dd;
+    //
+    let sendData={
+        ejercicio: "2021",
+        tabla: "F_FCO",
+        registro: [
+        {
+            "columna": "CODFCO",
+            "dato": codigoHojaDeFabricacion
+        },
+        {
+            "columna": "FECFCO",
+            "dato": today
+        },
+        {
+            "columna": "ALMFCO",
+            "dato": "GEN"
+        },
+        {
+            "columna": "ESTFCO",
+            "dato": 1
+        },
+        {
+            "columna": "OBSFCO",
+            "dato": buscarField.value + " " + selectedNombre + " " + selectedCodigo
+        },
+        ]
+    }
+    console.log(sendData)
+    let hojaDeFabricacion = await crearHojaDeFabricacion(sendData)
+
+    sendData={
+        ejercicio: "2021",
+        tabla: "F_LFC",
+        registro: [
+        {
+            "columna": "CODLFC",
+            "dato": codigoHojaDeFabricacion
+        },
+        {
+            "columna": "POSLFC",
+            "dato": 1
+        },
+        {
+            "columna": "ARTLFC",
+            "dato": selectedCodigo
+        },
+        {
+            "columna": "DESLFC",
+            "dato": selectedNombre
+        },
+        {
+            "columna": "CANLFC",
+            "dato": selectedCantidad
+        },
+        ]
+    }
+    console.log(sendData)
+    //let datosHojaDeFabricacion = await crearDatosHojaDeFabricacion(sendData)
+
+    return hojaDeFabricacion
 }
