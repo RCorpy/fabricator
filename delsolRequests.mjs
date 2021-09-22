@@ -89,7 +89,7 @@ async function getAuth(url = 'https://api.sdelsol.com/login/Autenticar', data = 
 }
 
 
-  async function getCogidoHojaDeFabricacion(url= "https://api.sdelsol.com/admin/LanzarConsulta", data = {
+  async function getCodigoHojaDeFabricacion(url= "https://api.sdelsol.com/admin/LanzarConsulta", data = {
     ejercicio: "2021",
     consulta: "SELECT * FROM F_FCO"
   }){
@@ -106,3 +106,17 @@ async function getAuth(url = 'https://api.sdelsol.com/login/Autenticar', data = 
     return response.json(); 
   }
 
+
+async function crearSubarticulosHojaDeFabricacion(data, url ="https://api.sdelsol.com/admin/EscribirRegistro"){
+    const response = await fetch(url, {
+    method: 'POST', 
+    mode: 'cors', 
+    cache: 'no-cache', 
+    credentials: 'same-origin',
+    headers: authHeader(),
+    redirect: 'follow', 
+    referrerPolicy: 'no-referrer', 
+    body: JSON.stringify(data) 
+  });
+  return response.json(); 
+}

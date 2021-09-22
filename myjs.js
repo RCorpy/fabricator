@@ -28,7 +28,7 @@ const clickBuscar = async () =>{
 
         basicInfoElement.innerHTML = "Se muestra: " + searchValue
         //console.log(presupuesto)
-        articulos = standarizarArticulos(articulos, 4,5, 3)
+        articulos = standarizarArticulos(articulos, 4,5, 3, 22)
         articulos = filtrarArticulos(articulos)
         showArticulos(articulos)
     }
@@ -39,7 +39,7 @@ const clickBuscar = async () =>{
     }
 }
 
-const standarizarArticulos = (articulos, nombrePosition, cantidadPosition, codigoPosition) => {
+const standarizarArticulos = (articulos, nombrePosition, cantidadPosition, codigoPosition, costePosition) => {
     articulos = articulos.map(element=>([element[nombrePosition].dato, element[cantidadPosition].dato, element[codigoPosition].dato]))
     return articulos
     
@@ -146,7 +146,6 @@ const desglosar = async (i, cantidad) =>{
     eliminarArticulo(i)
     let newArticulos = await buscarDesglose(codigo)
     newArticulos = newArticulos.resultado
-
     newArticulos = newArticulos.map(element=>([element[2].dato, element[4].dato * cantidad, element[1].dato]))
     newArticulos= filtrarArticulos(newArticulos)
 
@@ -163,8 +162,7 @@ const seleccionarArticulo = async (i, cantidad) =>{
     
     subArticulos = await buscarDesglose(selectedCodigo)
     subArticulos = subArticulos.resultado
-
-    subArticulos = subArticulos.map(element=>([element[2].dato, element[4].dato * cantidad, element[1].dato]))
+    subArticulos = subArticulos.map(element=>([element[2].dato, element[4].dato * cantidad, element[1].dato, element[3].dato]))
     subArticulos = filtrarArticulos(subArticulos, ["MANO"])
 
     let html = ""
@@ -205,7 +203,7 @@ const imprimir = () => {
 
 const crearFabricacion = async ()=>{
     //conseguir el siguiente numero de codigo
-    let codigoHojaDeFabricacion = await getCogidoHojaDeFabricacion()
+    let codigoHojaDeFabricacion = await getCodigoHojaDeFabricacion()
     codigoHojaDeFabricacion = codigoHojaDeFabricacion.resultado[codigoHojaDeFabricacion.resultado.length-1][0].dato +1
     //conseguir fecha formateada
     let today = new Date();
@@ -246,7 +244,6 @@ const crearFabricacion = async ()=>{
         },
         ]
     }
-    console.log(sendData)
     let hojaDeFabricacion = await crearHojaDeFabricacion(sendData)
 
     sendData={
@@ -275,8 +272,47 @@ const crearFabricacion = async ()=>{
         },
         ]
     }
-    console.log(sendData)
-    //let datosHojaDeFabricacion = await crearDatosHojaDeFabricacion(sendData)
 
+    let datosHojaDeFabricacion = await crearDatosHojaDeFabricacion(sendData)
+    let positionLINLFL = 1
+    const positionPOSLFL = 1 //este no va a cambiar
+
+    for(let i=0; i<subArticulos.length; i++){
+        
+        sendData={
+            ejercicio: "2021",
+            tabla: "F_LFL",
+            registro: [
+            {
+                "columna": "CODLFL",
+                "dato": codigoHojaDeFabricacion
+            },
+            {
+                "columna": "POSLFL",
+                "dato": positionPOSLFL
+            },
+            {
+                "columna": "LINLFL",
+                "dato": positionLINLFL
+            },
+            {
+                "columna": "ARTLFL",
+                "dato": subArticulos[i][2]
+            },
+            {
+                "columna": "CANLFL",
+                "dato": subArticulos[i][1]
+            },
+            {
+                "columna": "COSLFL",
+                "dato": subArticulos[i][3]
+            },
+            ]
+        }
+
+        let newSubarticulo = crearSubarticulosHojaDeFabricacion(sendData)
+        positionLINLFL++
+    }
+    //console.warn(subArticulos)
     return hojaDeFabricacion
 }
